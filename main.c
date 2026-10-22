@@ -68,7 +68,9 @@ void cifrar_cesar(char *texto, int chave){
     int new_letra;          
     char base;
 
+    /*Reduz qualquer chave para 0 a 25. Duas razões: evita estouro do int na soma e trata chave negativa.*/
     chave = ((chave % 26) + 26) % 26;
+
     for(i = 0; texto[i] != '\0'; i++){
         
         if(texto[i] >= 'a' && texto[i] <= 'z'){ 
@@ -81,14 +83,21 @@ void cifrar_cesar(char *texto, int chave){
             /*não é letra: pula para o próximo caractere*/
             continue;
         }
-        pos = texto[i] - base;                                /*Descobre a posição, como a = 0, a posição das letras não mudam. Por exemplo: b = 1, b - a = 1 */
-        new_pos = (((pos + chave) % 26) + 26) % 26;           /*Descobre a nova posição somando a letra com a chave. Por exemplo: chave = 3, chave + b = 4*/
-        new_letra = new_pos + base;                           /*Valor das letras depois de criptografada. Por exemplo: b = 1 e chave = 5, depois de criptografar b = 6*/
+        /*pos: Converte o caractere na posição dele no alfabeto (0 a 25). A base é 'a' ou 'A', conforme o caso.*/
+        pos = texto[i] - base;
+
+        /*new_pos: Anda a posição pela chave e dá a volta no alfabeto, é o % 26 que faz a volta.*/
+        new_pos = (((pos + chave) % 26) + 26) % 26;
+
+        /*new_letra: Converte a posição de volta em caractere, usando a mesma base.*/
+        new_letra = new_pos + base;
+
         texto[i] = new_letra;
     }
 }
 
 void decifrar_cesar(char *texto, int chave){
+    /*Reduz antes de negar. Se negasse primeiro, -(-2147483648) estouraria o int. Depois chama cifrar_cesar com a chave negativa, que anda para trás.*/
     chave = -(chave % 26);
     cifrar_cesar(texto, chave);
 }
